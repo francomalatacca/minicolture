@@ -44,6 +44,7 @@ exports.update = function(req, res) {
     var updated = _.merge(user, req.body);
     updated.save(function (err) {
       if (err) { return handleError(res, err); }
+      removePrivateProperties(user);
       return res.status(200).json(user);
     });
   });
