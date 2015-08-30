@@ -49,7 +49,7 @@ describe('GET /api/user/:id', function() {
 
   it('should respond with JSON object', function(done) {
     if(!this._id) {
-      console.log("\t(info) _id is not here!");
+      console.log("\t(info) _id is not defined inside this scope!");
       done();
     }
 
@@ -58,7 +58,10 @@ describe('GET /api/user/:id', function() {
       .expect(200)
       .expect('Content-Type', /json/)
       .end(function(err, res) {
-        if (err) return done(err);
+        if (err) {
+          return done(err);
+        }
+
         res.body.should.be.instanceof(Object);
         should.not.exist(res.body.password);
         should.not.exist(res.body.passphrase);
@@ -70,4 +73,56 @@ describe('GET /api/user/:id', function() {
       });
   });
 
+});
+
+describe('POST /api/user/', function() {
+
+  it('should respond with JSON object', function(done) {
+    var that = this;
+    var user = {
+      firstName: 'Joe',
+      lastName: 'Doe',
+      email : 'joe.doe' + Math.random() * 1000 + '@agri.com',
+      bio: 'This user is just used for testing purposes and configured into seed file for default config.',
+      password: '12345678'
+      };
+
+    request(app)
+      .post('/api/users/')
+      .send(user)
+      .expect(201)
+      .expect('Content-Type', /json/)
+      .end(function(err, res) {
+        if (err) {
+          return done(err);
+        }
+        res.body.should.be.instanceof(Object);
+        should.not.exist(res.body.password);
+        should.not.exist(res.body.passphrase);
+        res.body.should.have.property('_id');
+        that._id = res.body._id;
+        res.body.should.have.property('firstName');
+        res.body.should.have.property('lastName');
+        res.body.should.have.property('email');
+        res.body.should.have.property('bio');
+        done();
+      });
+  });
+
+  afterEach(function(done){
+    if(!this._id) {
+      console.log("\t(info) _id is not defined inside this scope!");
+      done();
+    }
+
+    request(app)
+      .delete('/api/users/' + this._id)
+      .expect(204)
+      .end(function(err, res) {
+        if (err) {
+          return done(err);
+        }
+        done();
+      });
+  });
 });

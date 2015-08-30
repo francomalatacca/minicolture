@@ -14,8 +14,14 @@ exports.index = function(req, res) {
 // Get a single user
 exports.show = function(req, res) {
   User.findById(req.params.id, function (err, user) {
-    if(err) { return handleError(res, err); }
-    if(!user) { return res.status(404).send('Not Found'); }
+    if(err) {
+      return handleError(res, err);
+    }
+
+    if(!user) {
+      return res.status(404).send('Not Found');
+    }
+    removePrivateProperties(user);
     return res.json(user);
   });
 };
@@ -24,6 +30,7 @@ exports.show = function(req, res) {
 exports.create = function(req, res) {
   User.create(req.body, function(err, user) {
     if(err) { return handleError(res, err); }
+    removePrivateProperties(user);
     return res.status(201).json(user);
   });
 };
@@ -53,6 +60,11 @@ exports.destroy = function(req, res) {
     });
   });
 };
+
+function removePrivateProperties(user) {
+  delete user._doc.password;
+  delete user._doc.passphrase;
+}
 
 function handleError(res, err) {
   return res.status(500).send(err);
