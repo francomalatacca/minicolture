@@ -4,10 +4,13 @@ var mongoose = require('mongoose'),
     Schema = mongoose.Schema;
 
 var UserSchema = new Schema({
+  firstName: {type: String, required: true, lowercase: true},
+  middleName: {type: String, required: false, lowercase: true},
+  lastName: {type: String, required: true, lowercase: true},
   email: {type: String, required: true, index: {unique: true}, lowercase: true},
   bio: String,
-  password: {type: String, required: true, minlength: 6, maxlenght: 32},
-  passphrase:  {type: String, required: true},
+  password: {type: String, required: false, minlength: 6, maxlenght: 32},
+  passphrase:  {type: String, required: false},
   active: {type: Boolean, default: false},
   /**
    * User legend
@@ -23,6 +26,12 @@ var UserSchema = new Schema({
 UserSchema.pre('save', function(next){
   var user = this;
   user.lastUpdate = Date.now();
+  delete user.passphrase;
+  delete user.type;
+  delete user.active;
+  delete user.created;
+
+  user.passphrase = user.email + ":" + user.password + ":" + Math.random()*1000+1;
   if(!user.isModified('password')){
     return next();
   }
