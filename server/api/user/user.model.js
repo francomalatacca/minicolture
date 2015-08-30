@@ -15,7 +15,7 @@ var UserSchema = new Schema({
    * 1 - producer
    * 2 - administrator
    * */
-  group: {type: Number, default: 0, min: 0, max: 3},
+  type: {type: Number, default: 0, min: 0, max: 3},
   lastUpdate: {type: Date, default: Date.now()},
   created: {type: Date, default: Date.now()}
 });
