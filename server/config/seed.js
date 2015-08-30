@@ -22,6 +22,8 @@ var User = require('../api/user/user.model');
 
 User.find({}).remove(function() {
   User.create({
+    firstName: 'Joe',
+    lastName: 'Doe',
     email : 'joe.doe@agri.com',
     bio: 'This user is just used for testing purposes and configured into seed file for default config.',
     password: '12345678'
