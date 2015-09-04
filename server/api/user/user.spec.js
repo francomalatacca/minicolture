@@ -3,6 +3,7 @@
 var should = require('should');
 var app = require('../../app');
 var request = require('supertest');
+
 /**
  * User Schema
  * email: {type: String, required: true, index: {unique: true}, lowercase: true},
@@ -127,7 +128,7 @@ describe('POST /api/user/', function() {
   });
 });
 
-describe('PUT /api/user/', function() {
+describe('PUT /api/user/:id', function() {
   beforeEach(function (done) {
     var that = this;
     var that = this;
@@ -188,6 +189,51 @@ describe('PUT /api/user/', function() {
   });
 
   afterEach(function(done){
+    if(!this._id) {
+      console.log("\t(info) _id is not defined inside this scope!");
+      done();
+    }
+
+    request(app)
+      .delete('/api/users/' + this._id)
+      .expect(204)
+      .end(function(err, res) {
+        if (err) {
+          return done(err);
+        }
+        done();
+      });
+  });
+});
+
+describe('DELETE /api/user/:id', function() {
+  beforeEach(function (done) {
+    var that = this;
+    var user = {
+      firstName: 'Joe',
+      lastName: 'Doe',
+      email : 'joe.doe' + Math.random() * 1000 + '@agri.com',
+      bio: 'This user is just used for testing purposes and configured into seed file for default config.',
+      password: '12345678'
+    };
+
+    request(app)
+      .post('/api/users/')
+      .send(user)
+      .expect(201)
+      .expect('Content-Type', /json/)
+      .end(function(err, res) {
+        if (err) {
+          return done(err);
+        }
+        res.body.should.be.instanceof(Object);
+        res.body.should.have.property('_id');
+        that._id = res.body._id;
+        done();
+      });
+  });
+
+  it('should delete an User and respond with No Content', function(done) {
     if(!this._id) {
       console.log("\t(info) _id is not defined inside this scope!");
       done();
