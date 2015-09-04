@@ -18,8 +18,9 @@ var ActivitySchema = new Schema({
 });
 
 ActivitySchema.pre('save', function(next) {
-  var user = this;
-  user.lastUpdate = Date.now();
+  var activity = this;
+  activity.lastUpdate = Date.now();
+  next();
 });
 
 module.exports = mongoose.model('Activity', ActivitySchema);
