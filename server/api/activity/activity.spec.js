@@ -253,15 +253,14 @@ describe('POST /api/activities/', function() {
       done();
     }
     var that = this;
-
+    var other = this;
     request(app)
-      .delete('/api/users/' + that._id)
+      .delete('/api/users/' + that._idUser)
       .expect(204)
       .end(function(err, res) {
         if (err) {
           return done(err);
         }
-        var other = that;
         request(app)
           .delete('/api/activities/' + other._idActivity)
           .expect(204)
