@@ -3,7 +3,7 @@
 var should = require('should');
 var app = require('../../app');
 var request = require('supertest');
-
+var userCtrl = require('./user.controller');
 /**
  * User Schema
  * email: {type: String, required: true, index: {unique: true}, lowercase: true},
@@ -15,6 +15,118 @@ var request = require('supertest');
  * lastUpdate: {type: Date, default: Date.now()},
  * created: {type: Date, default: Date.now()}
  */
+describe('User Get', function(done) {
+  var _id;
+  before(function (done) {
+    var req = {
+      body: {
+        firstName: 'Joe',
+        lastName: 'Doe',
+        email : 'joe.doe' + Math.random() * 1000 + '@agri.com',
+        bio: 'This user is just used for testing purposes and configured into seed file for default config.',
+        password: '12345678'
+      }
+    };
+    var res = {
+      status: function (statusId) {
+        statusId.should.be.equal(201);
+        return this;
+      },
+      json: function(data){
+        _id = data._id;
+        done();
+      }
+    };
+    userCtrl.create(req, res);
+  });
+  it('should respond with JSON array', function(done) {
+    var mockReq = {};
+    var mockRes = {
+      status: function(status) {
+        return this;
+      },
+      json: function(data) {
+        data.should.be.instanceOf(Array);
+        done();
+      }
+    }
+    userCtrl.index(mockReq, mockRes);
+  });
+});
+
+describe('Get User:id', function(done) {
+  var _id;
+  before(function (done) {
+    var req = {
+      body: {
+        firstName: 'Joe',
+        lastName: 'Doe',
+        email : 'joe.doe' + Math.random() * 1000 + '@agri.com',
+        bio: 'This user is just used for testing purposes and configured into seed file for default config.',
+        password: '12345678'
+      }
+    };
+    var res = {
+      status: function (statusId) {
+        statusId.should.be.equal(201);
+        return this;
+      },
+      json: function(data){
+        _id = data._id;
+        done();
+      }
+    };
+    userCtrl.create(req, res);
+  });
+  it('should respond with JSON object', function(done) {
+    if(!_id) {
+      throw Error("User's Id can't be null");
+    }
+    var mockReq = {params: {id: _id}};
+    var mockRes = {
+      status: function(status) {
+        console.log(status);
+        return this;
+      },
+      json: function(data) {
+        data.should.be.instanceOf(Object);
+        done();
+      }
+    }
+    userCtrl.show(mockReq, mockRes);
+  });
+});
+
+describe('Create User', function(done) {
+  var _id;
+  before(function (done) {
+   done();
+  });
+  it('should respond with JSON object', function(done) {
+    var req = {
+      body: {
+        firstName: 'Joe',
+        lastName: 'Doe',
+        email : 'joe.doe' + Math.random() * 1000 + '@agri.com',
+        bio: 'This user is just used for testing purposes and configured into seed file for default config.',
+        password: '12345678'
+      }
+    };
+    var res = {
+      status: function (statusId) {
+        statusId.should.be.equal(201);
+        return this;
+      },
+      json: function(data){
+        _id = data._id;
+        done();
+      }
+    };
+    userCtrl.create(req, res);
+  });
+});
+
+/*
 describe('GET /api/users', function() {
 
   it('should respond with JSON array', function(done) {
@@ -130,7 +242,6 @@ describe('POST /api/user/', function() {
 
 describe('PUT /api/user/:id', function() {
   beforeEach(function (done) {
-    var that = this;
     var that = this;
     var user = {
       firstName: 'Joe',
@@ -250,3 +361,4 @@ describe('DELETE /api/user/:id', function() {
       });
   });
 });
+*/

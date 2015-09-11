@@ -3,7 +3,7 @@
 var should = require('should');
 var app = require('../../app');
 var request = require('supertest');
-
+/*
 describe('GET /api/activities', function() {
   beforeEach(function (done) {
     var that = this;
@@ -273,7 +273,7 @@ describe('POST /api/activities/', function() {
       });
   });
 });
-
+*/
 /*
 describe('PUT /api/activities/:id', function() {
   beforeEach(function (done) {

@@ -1,3 +1,4 @@
+
 /**
  * Populate DB with sample data on server start
  * to disable, edit config/environment/index.js, and set `seedDB: false`
@@ -6,6 +7,9 @@
 'use strict';
 
 var User = require('../api/user/user.model');
+var Company = require('../api/company/company.model');
+var Activity = require('../api/activity/activity.model');
+var Colture = require('../api/colture/colture.model');
 
 /**
  * User Schema
@@ -21,6 +25,18 @@ var User = require('../api/user/user.model');
 
 
 User.find({}).remove(function() {
+  console.log("√ Deleted all the users");
+});
+Company.find({}).remove(function() {
+  console.log("√ Deleted all the companies");
+});
+Activity.find({}).remove(function() {
+  console.log("√ Deleted all the activities");
+});
+Colture.find({}).remove(function() {
+  console.log("√ Deleted all the coltures");
+});
+/*function() {
   User.create({
     firstName: 'Joe',
     lastName: 'Doe',
@@ -29,3 +45,11 @@ User.find({}).remove(function() {
     password: '12345678'
   });
 });
+
+Company.find({}).remove(function() {
+  Company.create({
+    _id: 'company-00000001',
+    legalName: 'Azienda Agricola Cavalieri',
+    userId: 'user-00000001'
+  });
+});*/
