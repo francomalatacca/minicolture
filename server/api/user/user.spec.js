@@ -4,6 +4,7 @@ var should = require('should');
 var app = require('../../app');
 var request = require('supertest');
 var controller = require('./user.controller');
+
 /**
  * User Schema
  * email: {type: String, required: true, index: {unique: true}, lowercase: true},
@@ -15,6 +16,7 @@ var controller = require('./user.controller');
  * lastUpdate: {type: Date, default: Date.now()},
  * created: {type: Date, default: Date.now()}
  */
+
 describe('User Get', function(done) {
   var _id;
   before(function (done) {
@@ -52,7 +54,6 @@ describe('User Get', function(done) {
     }
     controller.index(mockReq, mockRes);
   });
-
   after(function (done) {
     var req = {
       params: {id: _id}
@@ -106,7 +107,6 @@ describe('Get User:id', function(done) {
     }
     controller.show(mockReq, mockRes);
   });
-
   after(function (done) {
     var req = {
       params: {id: _id}
@@ -177,3 +177,4 @@ describe('Update User', function(done) {
     controller.destroy(req, res);
   });
 });
+

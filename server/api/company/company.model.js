@@ -8,14 +8,14 @@ var CompanySchema = new Schema({
   id: {type: String, required: true, lowercase: true},
   address: {
     addressLine1: {type: String, required: true, lowercase: true},
-    addressLine2: {type: String, required: true, lowercase: true},
+    addressLine2: {type: String, required: false, lowercase: true},
     city: {type: String, required: true, lowercase: true},
     state: {type: String, required: true, lowercase: true},
     cap: {type: String, required: true, lowercase: true}
   },
   contact: {
     mobile: {type: String, required: true, lowercase: true},
-    phone: {type: String, required: true, lowercase: true}
+    phone: {type: String, required: false, lowercase: true}
   },
   active: {type: Boolean, default: false},
   lastUpdate: {type: Date, default: Date.now()},

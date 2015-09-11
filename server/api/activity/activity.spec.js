@@ -3,398 +3,238 @@
 var should = require('should');
 var app = require('../../app');
 var request = require('supertest');
+var controller = require('./activity.controller');
+var userController = require('../user/user.controller');
+
 /*
-describe('GET /api/activities', function() {
-  beforeEach(function (done) {
-    var that = this;
-
-    var user = {
-      firstName: 'Joe',
-      lastName: 'Doe',
-      email : 'joe.doe' + Math.random() * 1000 + '@agri.com',
-      bio: 'This user is just used for testing purposes inside activities test set.',
-      password: '12345678'
+{
+  content: {type: String},
+  url: {type: String},
+  type: {type: Number, default: 0, min: 0, max: 1},
+  lastUpdate: {type: Date, default: Date.now()},
+  created: {type: Date, default: Date.now()},
+  _user: {type: Schema.Types.ObjectId, ref: 'User', required: true}
+}
+ */
+describe('Activity Get', function(done) {
+  var _userId;
+  var _id;
+  before(function (done) {
+    var req = {
+      body: {
+        firstName: 'Joe',
+        lastName: 'Doe',
+        email : 'joe.doe' + Math.random() * 1000 + '@agri.com',
+        bio: 'This user is just used for testing purposes and configured into seed file for default config.',
+        password: '12345678'
+      }
     };
-
-    request(app)
-      .post('/api/users/')
-      .send(user)
-      .expect(201)
-      .end(function(err, res) {
-        var other = that;
-
-        if (err) {
-          return done(err);
-        }
-        res.body.should.have.property('_id');
-        that._idUser = res.body._id;
-        console.log("User id:", that._idUser);
-        var activity = {
-          content: 'Just another activity content',
-          _user: that._idUser
-        };
-        request(app)
-          .post('/api/activities/')
-          .send(activity)
-          .expect(201)
-          .end(function(err, res) {
-            if (err) {
-              return done(err);
-            }
-            res.body.should.have.property('_id');
-            other._idActivity = res.body._id;
-
-            console.log("Activity id:", that._idActivity);
-            done();
-          });
-      });
+    var res = {
+      status: function (statusId) {
+        statusId.should.be.equal(201);
+        return this;
+      },
+      json: function(data){
+        _userId = data._id;
+        done();
+      }
+    };
+    userController.create(req, res);
   });
-
+  before(function (done) {
+    var req = {
+      body: {
+        content: 'A random test content',
+        url: 'http://www.random.com/?q=test',
+        _user: _userId
+      }
+    };
+    var res = {
+      status: function (statusId) {
+        statusId.should.be.equal(201);
+        return this;
+      },
+      json: function(data){
+        _id = data._id;
+        done();
+      }
+    };
+    controller.create(req, res);
+  });
   it('should respond with JSON array', function(done) {
-    request(app)
-      .get('/api/activities')
-      .expect(200)
-      .expect('Content-Type', /json/)
-      .end(function(err, res) {
-        if (err) return done(err);
-        res.body.should.be.instanceof(Array);
+    var mockReq = {};
+    var mockRes = {
+      status: function(status) {
+        return this;
+      },
+      json: function(data) {
+        data.should.be.instanceOf(Array);
         done();
-      });
+      }
+    }
+    controller.index(mockReq, mockRes);
   });
-
-  afterEach(function(done){
-    if(!this._idUser) {
-      console.log("\t(info) user's _id is not defined inside this scope!");
-      done();
+  after(function (done) {
+    var req = {
+      params: {id: _id}
     }
-    if(!this._idActivity) {
-      console.log("\t(info) activity's _id is not defined inside this scope!");
-      done();
+    var res = {
+      status: function(statusId) { return this; },
+      send: function(data) { done(); }
     }
-    var that = this;
-
-    request(app)
-      .delete('/api/users/' + that._idUser)
-      .expect(204)
-      .end(function(err, res) {
-        if (err) {
-          return done(err);
-        }
-        var other = that;
-        request(app)
-          .delete('/api/activities/' + other._idActivity)
-          .expect(204)
-          .end(function(err, res) {
-            if (err) {
-              return done(err);
-            }
-            done();
-          });
-      });
+    controller.destroy(req, res);
   });
 });
 
-describe('GET /api/activities/:id', function() {
-  beforeEach(function (done) {
-    var that = this;
-
-    var user = {
-      firstName: 'Joe',
-      lastName: 'Doe',
-      email : 'joe.doe' + Math.random() * 1000 + '@agri.com',
-      bio: 'This user is just used for testing purposes inside activities test set.',
-      password: '12345678'
+describe('Get Activity:id', function(done) {
+  var _id;
+  var _userId;
+  before(function (done) {
+    var req = {
+      body: {
+        firstName: 'Joe',
+        lastName: 'Doe',
+        email : 'joe.doe' + Math.random() * 1000 + '@agri.com',
+        bio: 'This user is just used for testing purposes and configured into seed file for default config.',
+        password: '12345678'
+      }
     };
-
-    request(app)
-      .post('/api/users/')
-      .send(user)
-      .expect(201)
-      .end(function(err, res) {
-        var other = that;
-
-        if (err) {
-          return done(err);
-        }
-        res.body.should.have.property('_id');
-        that._idUser = res.body._id;
-        console.log("User id:", that._idUser);
-        var activity = {
-          content: 'Just another activity content',
-          _user: that._idUser
-        };
-        request(app)
-          .post('/api/activities/')
-          .send(activity)
-          .expect(201)
-          .end(function(err, res) {
-            if (err) {
-              return done(err);
-            }
-            res.body.should.have.property('_id');
-            other._idActivity = res.body._id;
-
-            console.log("Activity id:", that._idActivity);
-
-            done();
-          });
-      });
+    var res = {
+      status: function (statusId) {
+        statusId.should.be.equal(201);
+        return this;
+      },
+      json: function(data){
+        _userId = data._id;
+        done();
+      }
+    };
+    userController.create(req, res);
   });
-
+  before(function (done) {
+    var req = {
+      body: {
+        content: 'A random test content',
+        url: 'http://www.random.com/?q=test',
+        _user: _userId
+      }
+    };
+    var res = {
+      status: function (statusId) {
+        statusId.should.be.equal(201);
+        return this;
+      },
+      json: function(data){
+        _id = data._id;
+        done();
+      }
+    };
+    controller.create(req, res);
+  });
   it('should respond with JSON object', function(done) {
-    var that = this;
-
-    request(app)
-      .get('/api/activities/' + that._idActivity)
-      .expect(200)
-      .expect('Content-Type', /json/)
-      .end(function(err, res) {
-        if (err) return done(err);
-        res.body.should.be.instanceof(Object);
+    if(!_id) {
+      throw Error("User's Id can't be null");
+    }
+    var mockReq = {params: {id: _id}};
+    var mockRes = {
+      status: function(status) {
+        console.log(status);
+        return this;
+      },
+      json: function(data) {
+        data.should.be.instanceOf(Object);
         done();
-      });
+      }
+    }
+    controller.show(mockReq, mockRes);
   });
-
-  afterEach(function(done){
-    if(!this._idUser) {
-      console.log("\t(info) user's _id is not defined inside this scope!");
-      done();
+  after(function (done) {
+    var req = {
+      params: {id: _id}
     }
-    if(!this._idActivity) {
-      console.log("\t(info) activity's _id is not defined inside this scope!");
-      done();
+    var res = {
+      status: function(statusId) { return this; },
+      send: function(data) { done(); }
     }
-    var that = this;
-
-    request(app)
-      .delete('/api/users/' + that._idUser)
-      .expect(204)
-      .end(function(err, res) {
-        if (err) {
-          return done(err);
-        }
-        var other = that;
-        request(app)
-          .delete('/api/activities/' + other._idActivity)
-          .expect(204)
-          .end(function(err, res) {
-            if (err) {
-              return done(err);
-            }
-            done();
-          });
-      });
+    controller.destroy(req, res);
   });
 });
 
-describe('POST /api/activities/', function() {
+describe('Update Activity', function(done) {
 
-  beforeEach(function (done) {
-    var that = this;
-    var user = {
-      firstName: 'Joe',
-      lastName: 'Doe',
-      email : 'joe.doe' + Math.random() * 1000 + '@agri.com',
-      bio: 'This user is just used for testing purposes inside activities test set.',
-      password: '12345678'
+  var _userId;
+  var _id;
+  before(function (done) {
+    var req = {
+      body: {
+        firstName: 'Joe',
+        lastName: 'Doe',
+        email : 'joe.doe' + Math.random() * 1000 + '@agri.com',
+        bio: 'This user is just used for testing purposes and configured into seed file for default config.',
+        password: '12345678'
+      }
     };
-    request(app)
-      .post('/api/users/')
-      .send(user)
-      .expect(201)
-      .end(function(err, res) {
-        var other = that;
-        if (err) {
-          return done(err);
-        }
-
-        res.body.should.have.property('_id');
-        that._idUser = res.body._id;
-        console.log("User id:", that._idUser);
-
+    var res = {
+      status: function (statusId) {
+        statusId.should.be.equal(201);
+        return this;
+      },
+      json: function(data){
+        _userId = data._id;
         done();
-      });
-  })
-
-  it('should create an Activity and respond with JSON object', function(done) {
-    if(!this._idUser) {
-      console.log("\t(info) user's _id is not defined inside this scope!");
-      done();
-    }
-    var activity = {
-      content: 'Just another activity content',
-      _user: this._idUser
+      }
     };
-    var that = this;
-    request(app)
-      .post('/api/activities/')
-      .send(activity)
-      .expect(201)
-      .expect('Content-Type', /json/)
-      .end(function(err, res) {
-        if (err) {
-          return done(err);
-        }
-        res.body.should.be.instanceof(Object);
-        res.body.should.have.property('_id');
-        that._idActivity = res.body._id;
-        console.log("Activity id:", that._idActivity);
-        done();
-      });
+    userController.create(req, res);
   });
-
-  afterEach(function(done){
-    if(!this._idUser) {
-      console.log("\t(info) user's _id is not defined inside this scope!");
-      done();
+  before(function (done) {
+    var req = {
+      body: {
+        content: 'A random test content',
+        url: 'http://www.random.com/?q=test',
+        _user: _userId
+      }
+    };
+    var res = {
+      status: function (statusId) {
+        statusId.should.be.equal(201);
+        return this;
+      },
+      json: function(data){
+        _id = data._id;
+        done();
+      }
+    };
+    controller.create(req, res);
+  });
+  it('should respond with JSON object', function(done) {
+    var req = {
+      body: {
+        content: 'A random updated test content',
+        _user: _userId
+      },
+      params: { id: _id }
+    };
+    var res = {
+      status: function (statusId) {
+        statusId.should.be.equal(200);
+        return this;
+      },
+      json: function(data){
+        _id = data._id;
+        data.should.have.property("content").equal('A random updated test content');
+        done();
+      }
+    };
+    controller.update(req, res);
+  });
+  after(function (done) {
+    var req = {
+      params: {id: _id}
     }
-    if(!this._idActivity) {
-      console.log("\t(info) activity's _id is not defined inside this scope!");
-      done();
+    var res = {
+      status: function(statusId) { return this; },
+      send: function(data) { done(); }
     }
-    var that = this;
-    var other = this;
-    request(app)
-      .delete('/api/users/' + that._idUser)
-      .expect(204)
-      .end(function(err, res) {
-        if (err) {
-          return done(err);
-        }
-        request(app)
-          .delete('/api/activities/' + other._idActivity)
-          .expect(204)
-          .end(function(err, res) {
-            if (err) {
-              return done(err);
-            }
-            done();
-          });
-      });
+    controller.destroy(req, res);
   });
 });
-*/
-/*
-describe('PUT /api/activities/:id', function() {
-  beforeEach(function (done) {
-    var that = this;
-    var that = this;
-    var user = {
-      firstName: 'Joe',
-      lastName: 'Doe',
-      email : 'joe.doe' + Math.random() * 1000 + '@agri.com',
-      bio: 'This user is just used for testing purposes and configured into seed file for default config.',
-      password: '12345678'
-    };
-
-    request(app)
-      .post('/api/users/')
-      .send(user)
-      .expect(201)
-      .expect('Content-Type', /json/)
-      .end(function(err, res) {
-        if (err) {
-          return done(err);
-        }
-        res.body.should.be.instanceof(Object);
-        res.body.should.have.property('_id');
-        that._id = res.body._id;
-        done();
-      });
-  });
-
-  it('should update an User and respond with JSON object', function(done) {
-    var that = this;
-    var user = {
-      firstName: 'Joe_updated',
-      lastName: 'Doe_updated',
-      email : 'joe.doe' + Math.random() * 1000 + '_updated@agri.com',
-      bio: 'This user is just used for testing purposes and configured into seed file for default config._updated',
-      password: '12345678_updated'
-    };
-
-    request(app)
-      .put('/api/users/' + this._id)
-      .send(user)
-      .expect(200)
-      .expect('Content-Type', /json/)
-      .end(function(err, res) {
-        if (err) {
-          return done(err);
-        }
-        res.body.should.be.instanceof(Object);
-        should.not.exist(res.body.password);
-        should.not.exist(res.body.passphrase);
-        res.body.should.have.property('_id');
-        that._id = res.body._id;
-        res.body.should.have.property('firstName');
-        res.body.should.have.property('lastName');
-        res.body.should.have.property('email');
-        res.body.should.have.property('bio');
-        done();
-      });
-  });
-
-  afterEach(function(done){
-    if(!this._id) {
-      console.log("\t(info) _id is not defined inside this scope!");
-      done();
-    }
-
-    request(app)
-      .delete('/api/users/' + this._id)
-      .expect(204)
-      .end(function(err, res) {
-        if (err) {
-          return done(err);
-        }
-        done();
-      });
-  });
-});
-
-describe('DELETE /api/activities/:id', function() {
-  beforeEach(function (done) {
-    var that = this;
-    var user = {
-      firstName: 'Joe',
-      lastName: 'Doe',
-      email : 'joe.doe' + Math.random() * 1000 + '@agri.com',
-      bio: 'This user is just used for testing purposes and configured into seed file for default config.',
-      password: '12345678'
-    };
-
-    request(app)
-      .post('/api/users/')
-      .send(user)
-      .expect(201)
-      .expect('Content-Type', /json/)
-      .end(function(err, res) {
-        if (err) {
-          return done(err);
-        }
-        res.body.should.be.instanceof(Object);
-        res.body.should.have.property('_id');
-        that._id = res.body._id;
-        done();
-      });
-  });
-
-  it('should delete an User and respond with No Content', function(done) {
-    if(!this._id) {
-      console.log("\t(info) _id is not defined inside this scope!");
-      done();
-    }
-
-    request(app)
-      .delete('/api/users/' + this._id)
-      .expect(204)
-      .end(function(err, res) {
-        if (err) {
-          return done(err);
-        }
-        done();
-      });
-  });
-});
-*/
